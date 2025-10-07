@@ -1,16 +1,14 @@
-// app/api/auth/items/[id]/route.ts
+// app/api/items/[id]/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params // Await the params Promise
-    
     const item = await prisma.item.findUnique({
-      where: { id },
+      where: { id: params.id },
       include: {
         user: {
           select: {
@@ -40,14 +38,13 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params // Await the params Promise
     const body = await request.json()
     
     const item = await prisma.item.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         ...(body.resolved !== undefined && { resolved: body.resolved }),
         ...(body.title && { title: body.title }),
@@ -67,13 +64,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params // Await the params Promise
-    
     await prisma.item.delete({
-      where: { id },
+      where: { id: params.id },
     })
 
     return NextResponse.json({ success: true })
